@@ -1,0 +1,35 @@
+diff --git a/flash_attn/cute/interface.py b/flash_attn/cute/interface.py
+--- a/flash_attn/cute/interface.py
++++ b/flash_attn/cute/interface.py
+@@ -518,6 +518,14 @@ _compute_blocks_to_batch.compile_cache = get_jit_cache("blocks_to_batch")
+ 
+ 
++def _normalize_max_seqlen(value: Optional[int | torch.Tensor]) -> Optional[int]:
++    if isinstance(value, torch.Tensor):
++        if value.numel() != 1:
++            raise ValueError("max_seqlen must be a scalar tensor")
++        return int(value.item())
++    return value
++
++
+ def _flash_attn_fwd(
+     q: Optional[torch.Tensor],
+     k: Optional[torch.Tensor],
+@@ -574,6 +582,8 @@ def _flash_attn_fwd(
+         aux_tensors: Some score_mods will want to read from global aux_tensors. This is how we thread them through to the inner kernel.
+         aux_scalars: Runtime scalar captures used by score_mod or mask_mod.
+     """
++    max_seqlen_q = _normalize_max_seqlen(max_seqlen_q)
++    max_seqlen_k = _normalize_max_seqlen(max_seqlen_k)
+     aux_scalars = tuple(aux_scalars) if aux_scalars else None
+     requires_grad = any(
+         t is not None and t.requires_grad for t in (q, k, v, qv, learnable_sink)
+@@ -1848,6 +1858,8 @@ def _flash_attn_bwd(
+     dlse: Optional[torch.Tensor] = None,
+     learnable_sink: Optional[torch.Tensor] = None,
+ ) -> Tuple[torch.Tensor, ...]:
++    max_seqlen_q = _normalize_max_seqlen(max_seqlen_q)
++    max_seqlen_k = _normalize_max_seqlen(max_seqlen_k)
+     aux_scalars = tuple(aux_scalars) if aux_scalars else None
+     fake_mode = is_fake_mode()
+     arch = _get_device_arch()
