@@ -29,3 +29,17 @@ sha256:0bea5dc2b337a07d0fb3cebc83c8aaf4d4baac1a08bbaa017d80119d8426f8e0
 The wheel contains software from
 [`pytorch/ao`](https://github.com/pytorch/ao) and retains its upstream license
 metadata.
+
+## FlashAttention-4 b28 compatibility build
+
+The FA4 wheel is based on Dao-AILab/flash-attention commit `0251105`. It
+accepts scalar `max_seqlen` tensors at the public interface boundary and keeps
+the TVM FFI `>=0.1.11` dependency used by the validated vLLM 0.27.1 stack. See
+`patches/flash-attn-4-b28-max-seqlen.patch`.
+
+Artifact:
+
+```text
+flash_attn_4-4.0.0b28.dev0+g0251105.d20260826-py3-none-any.whl
+sha256:9aae0f6fa850f2b64c5f7a3c4658ef5db8a81a34bcf7edd61f3084017ce47b95
+```
